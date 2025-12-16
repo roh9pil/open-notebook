@@ -5,7 +5,7 @@ Handles token counting and cost calculations for language models.
 
 import os
 
-from open_notebook.config import TIKTOKEN_CACHE_DIR
+from open_notebook.config import OPENAI_COMPATIBLE_TOKEN_USAGE, TIKTOKEN_CACHE_DIR
 
 # Set tiktoken cache directory before importing tiktoken to ensure
 # tokenizer encodings are cached persistently in the data folder
@@ -22,6 +22,9 @@ def token_count(input_string: str) -> int:
     Returns:
         int: The number of tokens in the input string.
     """
+    if not OPENAI_COMPATIBLE_TOKEN_USAGE:
+        return 0
+
     try:
         import tiktoken
         encoding = tiktoken.get_encoding("o200k_base")

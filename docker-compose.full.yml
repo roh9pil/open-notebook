@@ -18,6 +18,8 @@ services:
       - "5055:5055"
     env_file:
       - ./docker.env
+    environment:
+      - OPENAI_COMPATIBLE_TOKEN_USAGE=${OPENAI_COMPATIBLE_TOKEN_USAGE:-true}
     depends_on:
       - surrealdb
     volumes:
