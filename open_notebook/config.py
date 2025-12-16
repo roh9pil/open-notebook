@@ -15,3 +15,9 @@ os.makedirs(UPLOADS_FOLDER, exist_ok=True)
 # TIKTOKEN CACHE FOLDER
 TIKTOKEN_CACHE_DIR = f"{DATA_FOLDER}/tiktoken-cache"
 os.makedirs(TIKTOKEN_CACHE_DIR, exist_ok=True)
+
+# OPENAI COMPATIBLE TOKEN USAGE
+# Controls whether to measure token usage for OpenAI compatible models
+# Default: True (measure usage)
+# Set to False to disable usage measurement (e.g., for local models or performance)
+OPENAI_COMPATIBLE_TOKEN_USAGE = os.getenv("OPENAI_COMPATIBLE_TOKEN_USAGE", "true").lower() == "true"
