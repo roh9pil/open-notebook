@@ -88,3 +88,30 @@ print("Encoding downloaded to ./tiktoken-cache")
 ```
 
 Then copy the contents of `./tiktoken-cache` to the `data/tiktoken-cache` directory on your offline server.
+
+## Database (SurrealDB) Configuration
+
+SurrealDB is a standalone database and does not require internet access for core functionality. However, it may attempt to check for updates or send telemetry.
+
+### Single-Container Mode
+
+The single-container image (`Dockerfile.single`) is pre-configured with the following environment variables to ensure strict offline behavior:
+
+- `SURREAL_NO_BANNER=true`: Suppresses the startup banner (which may trigger version checks).
+- `SURREAL_TELEMETRY_DISABLE_METRICS=true`: Disables telemetry metrics.
+- `SURREAL_TELEMETRY_DISABLE_TRACING=true`: Disables telemetry tracing.
+
+### Multi-Container Mode (docker-compose)
+
+If you are using the multi-container setup (with the official `surrealdb/surrealdb` image), we recommend adding these environment variables to your `docker-compose.yml` or `docker.env` file to ensure the same behavior:
+
+```yaml
+services:
+  surrealdb:
+    image: surrealdb/surrealdb:v2
+    environment:
+      - SURREAL_NO_BANNER=true
+      - SURREAL_TELEMETRY_DISABLE_METRICS=true
+      - SURREAL_TELEMETRY_DISABLE_TRACING=true
+    # ... other config
+```

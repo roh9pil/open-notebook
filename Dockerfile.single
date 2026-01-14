@@ -68,6 +68,11 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
 # Install SurrealDB
 RUN curl --proto '=https' --tlsv1.2 -sSf ${SURREALDB_INSTALL_URL} | sh
 
+# Disable SurrealDB telemetry and banner for privacy/offline usage
+ENV SURREAL_NO_BANNER=true
+ENV SURREAL_TELEMETRY_DISABLE_METRICS=true
+ENV SURREAL_TELEMETRY_DISABLE_TRACING=true
+
 # Install uv using the official method
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
