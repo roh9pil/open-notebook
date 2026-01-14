@@ -1,6 +1,11 @@
 # Build stage
 FROM python:3.12-slim-bookworm AS builder
 
+ARG UV_INDEX_URL
+ARG UV_EXTRA_INDEX_URL
+ARG NPM_CONFIG_REGISTRY
+ARG NODE_SETUP_URL=https://deb.nodesource.com/setup_20.x
+
 # Install uv using the official method
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
@@ -9,7 +14,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     gcc g++ git make \
     curl \
-    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && curl -fsSL ${NODE_SETUP_URL} | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
@@ -28,6 +33,8 @@ COPY pyproject.toml uv.lock ./
 COPY open_notebook/__init__.py ./open_notebook/__init__.py
 
 # Install dependencies with optimizations (this layer will be cached unless dependencies change)
+ENV UV_INDEX_URL=${UV_INDEX_URL}
+ENV UV_EXTRA_INDEX_URL=${UV_EXTRA_INDEX_URL}
 RUN uv sync --frozen --no-dev
 
 # Copy the rest of the application code
@@ -35,6 +42,7 @@ COPY . /app
 
 # Install frontend dependencies and build
 WORKDIR /app/frontend
+RUN if [ -n "$NPM_CONFIG_REGISTRY" ]; then npm config set registry "$NPM_CONFIG_REGISTRY"; fi
 RUN npm ci
 RUN npm run build
 
@@ -44,13 +52,15 @@ WORKDIR /app
 # Runtime stage
 FROM python:3.12-slim-bookworm AS runtime
 
+ARG NODE_SETUP_URL=https://deb.nodesource.com/setup_20.x
+
 # Install only runtime system dependencies (no build tools)
 # Add Node.js 20.x LTS for running frontend
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     ffmpeg \
     supervisor \
     curl \
-    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && curl -fsSL ${NODE_SETUP_URL} | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
