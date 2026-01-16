@@ -147,6 +147,20 @@ class TestTokenUtilities:
             assert isinstance(count, int)
             assert count > 0
 
+    def test_token_count_fallback_generic_exception(self):
+        """Test fallback when tiktoken raises a generic Exception (e.g. network error)."""
+        from unittest.mock import patch
+
+        # Make tiktoken raise an Exception to trigger fallback
+        with patch("tiktoken.get_encoding", side_effect=Exception("Network error")):
+            text = "one two three four five"
+            count = token_count(text)
+
+            # Fallback uses word count * 1.3
+            # 5 words * 1.3 = 6.5 -> 6
+            assert isinstance(count, int)
+            assert count > 0
+
 
 # ============================================================================
 # TEST SUITE 3: Version Utilities

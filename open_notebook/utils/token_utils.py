@@ -5,6 +5,7 @@ Handles token counting and cost calculations for language models.
 
 import os
 
+from loguru import logger
 from open_notebook.config import TIKTOKEN_CACHE_DIR
 
 # Set tiktoken cache directory before importing tiktoken to ensure
@@ -29,6 +30,9 @@ def token_count(input_string: str) -> int:
         return len(tokens)
     except ImportError:
         # Fallback: simple word count estimation
+        return int(len(input_string.split()) * 1.3)
+    except Exception as e:
+        logger.warning(f"Failed to load tiktoken encoding 'o200k_base': {e}. Falling back to approximation.")
         return int(len(input_string.split()) * 1.3)
 
 
